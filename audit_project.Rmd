@@ -4,26 +4,98 @@ output: html_document
 date: "2023-11-13"
 ---
 
+### Load Libraries
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(ggcorrplot)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(caTools)
+library(ROSE)
+library(e1071)
+library(caret)
+library(plotROC)
+library(psych)
+library(rpart)
+library(ISLR)
+library(DMwR2)
+library(performanceEstimation)
+library(rpart.plot)
+library(Metrics)
+library(pROC)
+library(corrplot)
 ```
 
-## R Markdown
+### Overview
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is a sample of 1 row with headers explanation:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+1,PAYMENT,1060.31,C429214117,1089.0,28.69,M1591654462,0.0,0.0,0,0
 
-```{r cars}
-summary(cars)
+step - maps a unit of time in the real world. In this case 1 step is 1 hour of time. Total steps 744 (30 days simulation).
+
+type - CASH-IN, CASH-OUT, DEBIT, PAYMENT and TRANSFER.
+
+amount - amount of the transaction in local currency.
+
+nameOrig - customer who started the transaction
+
+oldbalanceOrg - initial balance before the transaction
+
+newbalanceOrig - new balance after the transaction.
+
+nameDest - customer who is the recipient of the transaction
+
+oldbalanceDest - initial balance recipient before the transaction. Note that there is not information for customers that start with M (Merchants).
+
+newbalanceDest - new balance recipient after the transaction. Note that there is not information for customers that start with M (Merchants).
+
+isFraud - This is the transactions made by the fraudulent agents inside the simulation. In this specific dataset the fraudulent behavior of the agents aims to profit by taking control or customers accounts and try to empty the funds by transferring to another account and then cashing out of the system.
+
+isFlaggedFraud - The business model aims to control massive transfers from one account to another and flags illegal attempts. An illegal attempt in this dataset is an attempt to transfer more than 200.000 in a single transaction.
+
+### Read and analyze data
+
+```{r}
+# Reading the csv file
+fraud_df <- read.csv('credit_card_fraud_data.csv', header = TRUE, na.strings=c(""))
+
+# IsFraud is needs to be converted to factor type
+fraud_df$isFraud <- factor(fraud_df$isFraud, levels=c(1,0))
+
+summary(fraud_df)
+head(fraud_df)
+# Count the total number of records
+print(nrow(fraud_df))
+
+
+
 ```
 
-## Including Plots
+### Split Test Train
 
-You can also embed plots, for example:
+```{r, echo=FALSE}
 
-```{r pressure, echo=FALSE}
+trainIndex <- createDataPartition(fraud_df$isFraud, p=0.8, list= FALSE)
+
+training_data <- fraud_df[trainIndex, ]
+testing_data <- fraud_df[-trainIndex, ]
+
+dim(training_data)
+dim(testing_data)
+```
+
+### Smote to counter class imbalance
+
+```{r, echo=FALSE}
+
+```
+
+### Logistic Regression
+
+```{r, echo=FALSE}
 plot(pressure)
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
